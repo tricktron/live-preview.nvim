@@ -30,7 +30,7 @@ end
 ---@param port number: port to run the server on
 ---@return boolean?
 function M.start(filepath, port)
-	local processes = utils.processes_listening_on_port(port)
+	local processes = port > 0 and utils.processes_listening_on_port(port) or {}
 	if #processes > 0 then
 		for _, process in ipairs(processes) do
 			if process.pid ~= vim.uv.os_getpid() then
@@ -107,7 +107,7 @@ function M.pick()
 			string.format(
 				"http://%s:%d/%s",
 				config.config.address,
-				config.config.port,
+				M.serverObj.port,
 				config.config.dynamic_root and vim.fs.basename(filepath) or filepath
 			),
 			config.config.browser

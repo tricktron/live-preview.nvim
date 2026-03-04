@@ -154,6 +154,7 @@ end
 --- 	- on_events (table<string, function(client:userdata, data:{filename: string, events: FsEvent}):void>)
 function Server:start(ip, port, opts)
 	self.server:bind(ip, port)
+	self.port = self.server:getsockname().port
 	local on_events = opts.on_events
 	if on_events then
 		if on_events.LivePreviewDirChanged then
