@@ -64,8 +64,9 @@ end
 --- Constructor
 --- @param webroot string|nil: path to the webroot
 function Server:new(webroot)
-	self.server = uv.new_tcp()
-	self.webroot = webroot or uv.cwd()
+	local o = setmetatable({}, Server)
+	o.server = uv.new_tcp()
+	o.webroot = webroot or uv.cwd()
 	api.nvim_create_augroup("LivePreview", {
 		clear = true,
 	})
@@ -86,7 +87,7 @@ function Server:new(webroot)
 			end,
 		})
 	end
-	return self
+	return o
 end
 
 --- Handle routes
