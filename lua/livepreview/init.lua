@@ -31,6 +31,9 @@ end
 ---@return boolean?
 function M.start(filepath, port)
 	if M.is_running() then
+		if config.config.dynamic_root then
+			M.serverObj.webroot = vim.fs.dirname(filepath)
+		end
 		return true
 	end
 	local processes = port > 0 and utils.processes_listening_on_port(port) or {}
@@ -72,7 +75,7 @@ function M.start(filepath, port)
 		end
 
 		M.serverObj:start(config.config.address, port, {
-		on_events = {
+			on_events = {
 				---@param client uv_tcp_t
 				---@param data {filename: string, event: FsEvent}
 				LivePreviewDirChanged = function(client, data)
