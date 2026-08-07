@@ -30,6 +30,9 @@ end
 ---@param port number: port to run the server on
 ---@return boolean?
 function M.start(filepath, port)
+	if M.is_running() then
+		return true
+	end
 	local processes = port > 0 and utils.processes_listening_on_port(port) or {}
 	if #processes > 0 then
 		for _, process in ipairs(processes) do
