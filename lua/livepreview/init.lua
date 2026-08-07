@@ -59,39 +59,35 @@ function M.start(filepath, port)
 	M.close()
 
 	M.serverObj = server.Server:new(config.config.dynamic_root and vim.fs.dirname(filepath) or nil)
-	vim.wait(50, function()
-		local function onTextChanged(client)
-			local bufname = vim.api.nvim_buf_get_name(0)
-			local ft = utils.supported_filetype(bufname)
-			if not ft or ft == "html" then
-				return
-			end
-			local message = {
-				filepath = bufname,
-				type = "update",
-				content = table.concat(vim.api.nvim_buf_get_lines(0, 0, -1, false), "\n"),
-			}
-			server.websocket.send_json(client, message)
+	local function onTextChanged(client)
+		local bufname = vim.api.nvim_buf_get_name(0)
+		local ft = utils.supported_filetype(bufname)
+		if not ft or ft == "html" then
+			return
 		end
+		local message = {
+			filepath = bufname,
+			type = "update",
+			content = table.concat(vim.api.nvim_buf_get_lines(0, 0, -1, false), "\n"),
+		}
+		server.websocket.send_json(client, message)
+	end
 
-		M.serverObj:start(config.config.address, port, {
-			on_events = {
-				---@param client uv_tcp_t
-				---@param data {filename: string, event: FsEvent}
-				LivePreviewDirChanged = function(client, data)
-					if not vim.regex([[\.\(html\|css\|js\)$]]):match_str(data.filename) then
-						return
-					end
+	M.serverObj:start(config.config.address, port, {
+		on_events = {
+			---@param client uv_tcp_t
+			---@param data {filename: string, event: FsEvent}
+			LivePreviewDirChanged = function(client, data)
+				if not vim.regex([[\.\(html\|css\|js\)$]]):match_str(data.filename) then
+					return
+				end
 
-					server.websocket.send_json(client, { type = "reload" })
-				end,
-				TextChanged = vim.schedule_wrap(onTextChanged),
-				TextChangedI = vim.schedule_wrap(onTextChanged),
-			},
-		})
-
-		return true
-	end, 98)
+				server.websocket.send_json(client, { type = "reload" })
+			end,
+			TextChanged = vim.schedule_wrap(onTextChanged),
+			TextChangedI = vim.schedule_wrap(onTextChanged),
+		},
+	})
 
 	return true
 end
