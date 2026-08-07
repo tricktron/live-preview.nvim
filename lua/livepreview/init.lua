@@ -59,7 +59,8 @@ function M.start(filepath, port)
 	vim.wait(50, function()
 		local function onTextChanged(client)
 			local bufname = vim.api.nvim_buf_get_name(0)
-			if not utils.supported_filetype(bufname) or utils.supported_filetype(bufname) == "html" then
+			local ft = utils.supported_filetype(bufname)
+			if not ft or ft == "html" then
 				return
 			end
 			local message = {
