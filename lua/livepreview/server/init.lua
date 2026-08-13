@@ -193,7 +193,9 @@ function Server:start(ip, port, opts)
 		self.server:accept(client)
 		handler.client(client, function(error, request)
 			if error or not request then
+				vim.schedule(function()
 				vim.notify(error and error, vim.log.levels.ERROR)
+			end)
 				for i, c in ipairs(M.connecting_clients) do
 					if c == client then
 						client:close()
